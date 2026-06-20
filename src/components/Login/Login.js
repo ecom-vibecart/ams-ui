@@ -17,11 +17,12 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      const { data } = await axios.post(`${API.validateAccount}?type=user`, { email, password, role: 'ADMIN' });
+      const { data } = await axios.post(`${API.validateAccount}?type=user`, { email, password });
       const token = data.message || data.token || data.data?.token;
       if (!token) throw new Error('Invalid credentials');
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('email', email);
+      sessionStorage.setItem('role', data.role || '');
       dispatch(login());
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');

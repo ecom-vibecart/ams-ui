@@ -124,8 +124,7 @@ const CreateUser = () => {
               <select name="role" value={form.role} onChange={handleChange}
                 style={{ ...inputStyle }}>
                 <option value="ADMIN">Admin</option>
-                <option value="MANAGER">Manager</option>
-                <option value="VIEWER">Viewer</option>
+                <option value="GUEST">Guest</option>
               </select>
             </div>
             <div>

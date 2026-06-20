@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from './components/Redux/authSlice';
+import { logout, isAdmin } from './components/Redux/authSlice';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -45,11 +45,11 @@ function App() {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/users" element={<Users />} />
-              <Route path="/users/create" element={<CreateUser />} />
-              <Route path="/users/edit/:id" element={<CreateUser />} />
+              <Route path="/users/create" element={isAdmin() ? <CreateUser /> : <Navigate to="/users" replace />} />
+              <Route path="/users/edit/:id" element={isAdmin() ? <CreateUser /> : <Navigate to="/users" replace />} />
               <Route path="/customers" element={<Customers />} />
-              <Route path="/customers/create" element={<CreateCustomer />} />
-              <Route path="/customers/edit/:id" element={<CreateCustomer />} />
+              <Route path="/customers/create" element={isAdmin() ? <CreateCustomer /> : <Navigate to="/customers" replace />} />
+              <Route path="/customers/edit/:id" element={isAdmin() ? <CreateCustomer /> : <Navigate to="/customers" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </ProtectedLayout>

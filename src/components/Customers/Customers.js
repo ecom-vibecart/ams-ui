@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { API } from '../Services/service';
+import { isAdmin } from '../Redux/authSlice';
 import '../Users/Users.css';
 
 const Customers = () => {
@@ -89,9 +90,11 @@ const Customers = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button className="btn-primary-vc" onClick={() => navigate('/customers/create')}>
-            + Add Customer
-          </button>
+          {isAdmin() && (
+            <button className="btn-primary-vc" onClick={() => navigate('/customers/create')}>
+              + Add Customer
+            </button>
+          )}
         </div>
       </div>
 
@@ -127,15 +130,19 @@ const Customers = () => {
                       </span>
                     </td>
                     <td>
-                      <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/customers/edit/${c.customerId}`)}>
-                        Edit
-                      </button>
-                      <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(c)}>
-                        {c.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(c.customerId)}>
-                        Delete
-                      </button>
+                      {isAdmin() && (
+                        <>
+                          <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/customers/edit/${c.customerId}`)}>
+                            Edit
+                          </button>
+                          <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(c)}>
+                            {c.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(c.customerId)}>
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 );

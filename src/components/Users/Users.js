@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { API } from '../Services/service';
+import { isAdmin } from '../Redux/authSlice';
 import './Users.css';
 
 const Users = () => {
@@ -87,9 +88,11 @@ const Users = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button className="btn-primary-vc" onClick={() => navigate('/users/create')}>
-            + Add User
-          </button>
+          {isAdmin() && (
+            <button className="btn-primary-vc" onClick={() => navigate('/users/create')}>
+              + Add User
+            </button>
+          )}
         </div>
       </div>
 
@@ -123,15 +126,19 @@ const Users = () => {
                     </span>
                   </td>
                   <td>
-                    <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/users/edit/${u.userId}`)}>
-                      Edit
-                    </button>
-                    <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(u)}>
-                      {u.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(u.userId)}>
-                      Delete
-                    </button>
+                    {isAdmin() && (
+                      <>
+                        <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/users/edit/${u.userId}`)}>
+                          Edit
+                        </button>
+                        <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(u)}>
+                          {u.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(u.userId)}>
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
