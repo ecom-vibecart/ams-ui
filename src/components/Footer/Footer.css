@@ -1,0 +1,15 @@
+@import '../Styles/styles.css';
+
+.footer {
+  background-color: var(--vc-surface);
+  border-top: 1px solid var(--vc-border);
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 12px;
+  color: var(--vc-text-muted);
+  position: fixed;
+  bottom: 0;
+  left: var(--vc-sidebar-width);
+  right: 0;
+  z-index: 900;
+}

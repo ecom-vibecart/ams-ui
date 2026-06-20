@@ -1,0 +1,39 @@
+@import '../Styles/styles.css';
+
+.dashboard-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--vc-text);
+  margin-bottom: 20px;
+}
+
+.stat-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-border);
+  border-radius: var(--vc-radius-lg);
+  box-shadow: var(--vc-shadow-sm);
+  padding: 24px 28px;
+  min-width: 180px;
+  flex: 1;
+}
+
+.stat-card h6 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--vc-text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--vc-primary);
+}

@@ -1,0 +1,28 @@
+:root {
+  --vc-primary:        #dd1e25;
+  --vc-primary-hover:  #b01920;
+  --vc-primary-dark:   #8c0e12;
+  --vc-bg:             #efefef;
+  --vc-surface:        #ffffff;
+  --vc-sidebar-bg:     #f8f9fa;
+  --vc-table-head:     #f5f5f5;
+  --vc-row-hover:      #fff5f5;
+  --vc-border:         #dedede;
+  --vc-text:           #333333;
+  --vc-text-muted:     #777777;
+  --vc-error:          #dc3545;
+  --vc-shadow-sm:      0 1px 4px rgba(0,0,0,.08);
+  --vc-shadow-md:      0 2px 8px rgba(0,0,0,.10);
+  --vc-shadow-lg:      0 4px 16px rgba(0,0,0,.14);
+  --vc-radius-sm:      4px;
+  --vc-radius:         6px;
+  --vc-radius-lg:      8px;
+  --vc-transition:     0.2s ease;
+  --vc-header-height:  60px;
+  --vc-sidebar-width:  220px;
+  --border-color:      var(--vc-border);
+  --text-color:        var(--vc-text);
+  --border-radius:     var(--vc-radius);
+  --error-text-color:  var(--vc-error);
+  --error-border-color: var(--vc-error);
+}
