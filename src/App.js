@@ -32,7 +32,7 @@ function App() {
   const handleLogout = () => dispatch(logout());
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Header onLogout={handleLogout} isLoggedIn={isLoggedIn} />
       <div className="app-shell">
         {!isLoggedIn ? (
