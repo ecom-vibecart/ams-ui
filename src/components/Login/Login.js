@@ -17,7 +17,7 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      const { data } = await axios.post(`${API.validateAccount}?type=user`, { email, password });
+      const { data } = await axios.post(`${API.validateAccount}?type=user`, { email, password, role: 'ADMIN' });
       const token = data.message || data.token || data.data?.token;
       if (!token) throw new Error('Invalid credentials');
       sessionStorage.setItem('token', token);
