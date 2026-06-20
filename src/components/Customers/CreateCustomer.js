@@ -5,12 +5,26 @@ import Swal from 'sweetalert2';
 import { API } from '../Services/service';
 import '../Users/Users.css';
 
+const inputStyle = {
+  width: '100%', padding: '8px 12px',
+  border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius)',
+  fontSize: '13px', boxSizing: 'border-box', background: 'var(--vc-surface)',
+  outline: 'none',
+};
+
+const labelStyle = { display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 };
+
+const emptyAddr = { doorNo: '', streetName: '', landMark: '', cityName: '', stateName: '', zipCode: '', mobile: '', email: '' };
+
 const CreateCustomer = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
 
-  const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', active: true });
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: '', password: '', status: 'ACTIVE',
+  });
+  const [address, setAddress] = useState(emptyAddr);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
   const [error, setError] = useState('');
@@ -20,15 +34,38 @@ const CreateCustomer = () => {
     axios.get(API.customer(id))
       .then(({ data }) => {
         const c = Array.isArray(data) ? data[0] : (data.data || data);
-        setForm({ name: c.name || '', email: c.email || '', phone: c.phone || '', address: c.address || '', active: c.active !== false });
+        setForm({
+          firstName: c.firstName || '',
+          lastName: c.lastName || '',
+          email: c.email || '',
+          password: '',
+          status: c.status || 'ACTIVE',
+        });
+        const addr = c.customerAddressDTOList?.[0] || {};
+        setAddress({
+          addressId: addr.addressId,
+          doorNo: addr.doorNo || '',
+          streetName: addr.streetName || '',
+          landMark: addr.landMark || '',
+          cityName: addr.cityName || '',
+          stateName: addr.stateName || '',
+          zipCode: addr.zipCode || '',
+          mobile: addr.mobile || '',
+          email: addr.email || '',
+        });
       })
       .catch(() => setError('Failed to load customer.'))
       .finally(() => setFetching(false));
   }, [id, isEdit]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddrChange = (e) => {
+    const { name, value } = e.target;
+    setAddress(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -36,10 +73,16 @@ const CreateCustomer = () => {
     setLoading(true);
     setError('');
     try {
+      const payload = {
+        ...form,
+        role: 'GUEST',
+        customerAddressDTOList: [address],
+      };
+      if (isEdit && !payload.password) delete payload.password;
       if (isEdit) {
-        await axios.put(API.customer(id), form);
+        await axios.put(API.customer(id), payload);
       } else {
-        await axios.post(API.createCustomer, form);
+        await axios.post(API.createCustomer, payload);
       }
       Swal.fire({ title: isEdit ? 'Customer Updated!' : 'Customer Created!', icon: 'success', timer: 1500, showConfirmButton: false });
       navigate('/customers');
@@ -50,13 +93,13 @@ const CreateCustomer = () => {
     }
   };
 
-  const inputStyle = { width: '100%', padding: '8px 12px', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius)', fontSize: '13px', boxSizing: 'border-box', background: 'var(--vc-surface)' };
-
   if (fetching) return (
     <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
       <div className="spinner-border text-danger" role="status"><span className="visually-hidden">Loading...</span></div>
     </div>
   );
+
+  const sectionHead = { fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--vc-text-muted)', margin: '20px 0 12px' };
 
   return (
     <div>
@@ -67,33 +110,87 @@ const CreateCustomer = () => {
         </button>
       </div>
 
-      <div style={{ background: 'var(--vc-surface)', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius-lg)', boxShadow: 'var(--vc-shadow-sm)', padding: '28px', maxWidth: '500px' }}>
+      <div style={{ background: 'var(--vc-surface)', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius-lg)', boxShadow: 'var(--vc-shadow-sm)', padding: '28px', maxWidth: '560px' }}>
         <form onSubmit={handleSubmit}>
-          {[
-            { label: 'Name', name: 'name', type: 'text' },
-            { label: 'Email', name: 'email', type: 'email' },
-            { label: 'Phone', name: 'phone', type: 'tel' },
-            { label: 'Address', name: 'address', type: 'text' },
-          ].map(f => (
-            <div key={f.name} style={{ marginBottom: '14px' }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 }}>{f.label}</label>
-              <input
-                type={f.type}
-                name={f.name}
-                style={inputStyle}
-                value={form[f.name]}
-                onChange={handleChange}
-                required={f.name === 'name' || f.name === 'email'}
-              />
-            </div>
-          ))}
 
-          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input type="checkbox" name="active" id="active" checked={form.active} onChange={handleChange} />
-            <label htmlFor="active" style={{ fontSize: '13px', margin: 0 }}>Active</label>
+          <p style={sectionHead}>Personal Information</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+            <div>
+              <label style={labelStyle}>First Name</label>
+              <input name="firstName" style={inputStyle} value={form.firstName} onChange={handleFormChange} required />
+            </div>
+            <div>
+              <label style={labelStyle}>Last Name</label>
+              <input name="lastName" style={inputStyle} value={form.lastName} onChange={handleFormChange} required />
+            </div>
           </div>
 
-          {error && <div className="alert alert-danger" style={{ fontSize: '13px', padding: '8px 12px' }}>{error}</div>}
+          <div style={{ marginBottom: '14px' }}>
+            <label style={labelStyle}>Email</label>
+            <input type="email" name="email" style={inputStyle} value={form.email} onChange={handleFormChange} required />
+          </div>
+
+          {!isEdit && (
+            <div style={{ marginBottom: '14px' }}>
+              <label style={labelStyle}>Password</label>
+              <input type="password" name="password" style={inputStyle} value={form.password} onChange={handleFormChange} required />
+            </div>
+          )}
+
+          <div style={{ marginBottom: '14px' }}>
+            <label style={labelStyle}>Status</label>
+            <select name="status" value={form.status} onChange={handleFormChange} style={inputStyle}>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <p style={sectionHead}>Address</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+            <div>
+              <label style={labelStyle}>Door / Unit No.</label>
+              <input name="doorNo" style={inputStyle} value={address.doorNo} onChange={handleAddrChange} />
+            </div>
+            <div>
+              <label style={labelStyle}>Street</label>
+              <input name="streetName" style={inputStyle} value={address.streetName} onChange={handleAddrChange} />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '14px' }}>
+            <label style={labelStyle}>Landmark</label>
+            <input name="landMark" style={inputStyle} value={address.landMark} onChange={handleAddrChange} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+            <div>
+              <label style={labelStyle}>City</label>
+              <input name="cityName" style={inputStyle} value={address.cityName} onChange={handleAddrChange} />
+            </div>
+            <div>
+              <label style={labelStyle}>State</label>
+              <input name="stateName" style={inputStyle} value={address.stateName} onChange={handleAddrChange} />
+            </div>
+            <div>
+              <label style={labelStyle}>Zip Code</label>
+              <input name="zipCode" style={inputStyle} value={address.zipCode} onChange={handleAddrChange} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
+            <div>
+              <label style={labelStyle}>Mobile</label>
+              <input type="tel" name="mobile" style={inputStyle} value={address.mobile} onChange={handleAddrChange} />
+            </div>
+            <div>
+              <label style={labelStyle}>Address Email</label>
+              <input type="email" name="email" style={inputStyle} value={address.email} onChange={handleAddrChange} />
+            </div>
+          </div>
+
+          {error && <div className="alert alert-danger" style={{ fontSize: '13px', padding: '8px 12px', marginBottom: '14px' }}>{error}</div>}
 
           <button type="submit" className="btn-primary-vc" style={{ width: '100%' }} disabled={loading}>
             {loading ? 'Saving…' : isEdit ? 'Update Customer' : 'Create Customer'}

@@ -30,13 +30,13 @@ const Users = () => {
 
   useEffect(() => {
     const q = search.toLowerCase();
-    setFiltered(users.filter(u =>
-      (u.name || '').toLowerCase().includes(q) ||
-      (u.email || '').toLowerCase().includes(q)
-    ));
+    setFiltered(users.filter(u => {
+      const name = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+      return name.includes(q) || (u.email || '').toLowerCase().includes(q);
+    }));
   }, [search, users]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (userId) => {
     const result = await Swal.fire({
       title: 'Delete User?',
       text: 'This action cannot be undone.',
@@ -48,8 +48,8 @@ const Users = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      await axios.delete(API.user(id));
-      setUsers(prev => prev.filter(u => u.id !== id));
+      await axios.delete(API.user(userId));
+      setUsers(prev => prev.filter(u => u.userId !== userId));
       Swal.fire({ title: 'Deleted!', icon: 'success', timer: 1500, showConfirmButton: false });
     } catch {
       Swal.fire('Error', 'Failed to delete user.', 'error');
@@ -57,9 +57,10 @@ const Users = () => {
   };
 
   const handleToggle = async (user) => {
+    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     try {
-      await axios.put(API.user(user.id), { ...user, active: !user.active });
-      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, active: !u.active } : u));
+      await axios.patch(API.patchUserStatus(user.userId, newStatus));
+      setUsers(prev => prev.map(u => u.userId === user.userId ? { ...u, status: newStatus } : u));
     } catch {
       Swal.fire('Error', 'Failed to update user status.', 'error');
     }
@@ -102,6 +103,7 @@ const Users = () => {
                 <th>#</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Mobile</th>
                 <th>Role</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -109,24 +111,25 @@ const Users = () => {
             </thead>
             <tbody>
               {filtered.map((u, i) => (
-                <tr key={u.id}>
+                <tr key={u.userId}>
                   <td>{i + 1}</td>
-                  <td>{u.name || '—'}</td>
+                  <td>{[u.firstName, u.lastName].filter(Boolean).join(' ') || '—'}</td>
                   <td>{u.email || '—'}</td>
+                  <td>{u.mobile || '—'}</td>
                   <td>{u.role || '—'}</td>
                   <td>
-                    <span className={u.active !== false ? 'badge-active' : 'badge-inactive'}>
-                      {u.active !== false ? 'Active' : 'Inactive'}
+                    <span className={u.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive'}>
+                      {u.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td>
-                    <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/users/edit/${u.id}`)}>
+                    <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/users/edit/${u.userId}`)}>
                       Edit
                     </button>
                     <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(u)}>
-                      {u.active !== false ? 'Deactivate' : 'Activate'}
+                      {u.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
                     </button>
-                    <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(u.id)}>
+                    <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(u.userId)}>
                       Delete
                     </button>
                   </td>

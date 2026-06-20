@@ -5,12 +5,24 @@ import Swal from 'sweetalert2';
 import { API } from '../Services/service';
 import '../Users/Users.css';
 
+const inputStyle = {
+  width: '100%', padding: '8px 12px',
+  border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius)',
+  fontSize: '13px', boxSizing: 'border-box', background: 'var(--vc-surface)',
+  outline: 'none',
+};
+
+const labelStyle = { display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 };
+
 const CreateUser = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
 
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'ADMIN', active: true });
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: '', password: '',
+    mobile: '', role: 'ADMIN', status: 'ACTIVE',
+  });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
   const [error, setError] = useState('');
@@ -20,15 +32,23 @@ const CreateUser = () => {
     axios.get(API.user(id))
       .then(({ data }) => {
         const u = Array.isArray(data) ? data[0] : (data.data || data);
-        setForm({ name: u.name || '', email: u.email || '', password: '', role: u.role || 'ADMIN', active: u.active !== false });
+        setForm({
+          firstName: u.firstName || '',
+          lastName: u.lastName || '',
+          email: u.email || '',
+          password: '',
+          mobile: u.mobile || '',
+          role: u.role || 'ADMIN',
+          status: u.status || 'ACTIVE',
+        });
       })
       .catch(() => setError('Failed to load user.'))
       .finally(() => setFetching(false));
   }, [id, isEdit]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -36,10 +56,12 @@ const CreateUser = () => {
     setLoading(true);
     setError('');
     try {
+      const payload = { ...form };
+      if (isEdit && !payload.password) delete payload.password;
       if (isEdit) {
-        await axios.put(API.user(id), form);
+        await axios.put(API.user(id), payload);
       } else {
-        await axios.post(API.createUser, form);
+        await axios.post(API.createUser, payload);
       }
       Swal.fire({ title: isEdit ? 'User Updated!' : 'User Created!', icon: 'success', timer: 1500, showConfirmButton: false });
       navigate('/users');
@@ -65,47 +87,58 @@ const CreateUser = () => {
         </button>
       </div>
 
-      <div style={{ background: 'var(--vc-surface)', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius-lg)', boxShadow: 'var(--vc-shadow-sm)', padding: '28px', maxWidth: '500px' }}>
+      <div style={{ background: 'var(--vc-surface)', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius-lg)', boxShadow: 'var(--vc-shadow-sm)', padding: '28px', maxWidth: '520px' }}>
         <form onSubmit={handleSubmit}>
-          {[
-            { label: 'Name', name: 'name', type: 'text' },
-            { label: 'Email', name: 'email', type: 'email' },
-            ...(!isEdit ? [{ label: 'Password', name: 'password', type: 'password' }] : []),
-          ].map(f => (
-            <div key={f.name} style={{ marginBottom: '14px' }}>
-              <label className="login-label" style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 }}>{f.label}</label>
-              <input
-                type={f.type}
-                name={f.name}
-                className="login-input"
-                style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius)', fontSize: '13px', boxSizing: 'border-box' }}
-                value={form[f.name]}
-                onChange={handleChange}
-                required={f.name !== 'password' || !isEdit}
-              />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+            <div>
+              <label style={labelStyle}>First Name</label>
+              <input name="firstName" style={inputStyle} value={form.firstName} onChange={handleChange} required />
             </div>
-          ))}
+            <div>
+              <label style={labelStyle}>Last Name</label>
+              <input name="lastName" style={inputStyle} value={form.lastName} onChange={handleChange} required />
+            </div>
+          </div>
 
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 }}>Role</label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--vc-border)', borderRadius: 'var(--vc-radius)', fontSize: '13px', background: 'var(--vc-surface)' }}
-            >
-              <option value="ADMIN">Admin</option>
-              <option value="MANAGER">Manager</option>
-              <option value="VIEWER">Viewer</option>
-            </select>
+            <label style={labelStyle}>Email</label>
+            <input type="email" name="email" style={inputStyle} value={form.email} onChange={handleChange} required />
           </div>
 
-          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input type="checkbox" name="active" id="active" checked={form.active} onChange={handleChange} />
-            <label htmlFor="active" style={{ fontSize: '13px', margin: 0 }}>Active</label>
+          {!isEdit && (
+            <div style={{ marginBottom: '14px' }}>
+              <label style={labelStyle}>Password</label>
+              <input type="password" name="password" style={inputStyle} value={form.password} onChange={handleChange} required />
+            </div>
+          )}
+
+          <div style={{ marginBottom: '14px' }}>
+            <label style={labelStyle}>Mobile</label>
+            <input type="tel" name="mobile" style={inputStyle} value={form.mobile} onChange={handleChange} />
           </div>
 
-          {error && <div className="alert alert-danger" style={{ fontSize: '13px', padding: '8px 12px' }}>{error}</div>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
+            <div>
+              <label style={labelStyle}>Role</label>
+              <select name="role" value={form.role} onChange={handleChange}
+                style={{ ...inputStyle }}>
+                <option value="ADMIN">Admin</option>
+                <option value="MANAGER">Manager</option>
+                <option value="VIEWER">Viewer</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Status</label>
+              <select name="status" value={form.status} onChange={handleChange}
+                style={{ ...inputStyle }}>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          {error && <div className="alert alert-danger" style={{ fontSize: '13px', padding: '8px 12px', marginBottom: '14px' }}>{error}</div>}
 
           <button type="submit" className="btn-primary-vc" style={{ width: '100%' }} disabled={loading}>
             {loading ? 'Saving…' : isEdit ? 'Update User' : 'Create User'}

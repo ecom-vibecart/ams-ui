@@ -30,14 +30,15 @@ const Customers = () => {
 
   useEffect(() => {
     const q = search.toLowerCase();
-    setFiltered(customers.filter(c =>
-      (c.name || '').toLowerCase().includes(q) ||
-      (c.email || '').toLowerCase().includes(q) ||
-      (c.phone || '').toLowerCase().includes(q)
-    ));
+    setFiltered(customers.filter(c => {
+      const name = `${c.firstName || ''} ${c.lastName || ''}`.toLowerCase();
+      const addr = c.customerAddressDTOList?.[0];
+      const phone = addr?.mobile || '';
+      return name.includes(q) || (c.email || '').toLowerCase().includes(q) || phone.includes(q);
+    }));
   }, [search, customers]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (customerId) => {
     const result = await Swal.fire({
       title: 'Delete Customer?',
       text: 'This action cannot be undone.',
@@ -49,8 +50,8 @@ const Customers = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      await axios.delete(API.customer(id));
-      setCustomers(prev => prev.filter(c => c.id !== id));
+      await axios.delete(API.customer(customerId));
+      setCustomers(prev => prev.filter(c => c.customerId !== customerId));
       Swal.fire({ title: 'Deleted!', icon: 'success', timer: 1500, showConfirmButton: false });
     } catch {
       Swal.fire('Error', 'Failed to delete customer.', 'error');
@@ -58,9 +59,10 @@ const Customers = () => {
   };
 
   const handleToggle = async (customer) => {
+    const newStatus = customer.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     try {
-      await axios.put(API.customer(customer.id), { ...customer, active: !customer.active });
-      setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, active: !c.active } : c));
+      await axios.patch(API.patchCustomerStatus(customer.customerId, newStatus));
+      setCustomers(prev => prev.map(c => c.customerId === customer.customerId ? { ...c, status: newStatus } : c));
     } catch {
       Swal.fire('Error', 'Failed to update customer status.', 'error');
     }
@@ -103,36 +105,41 @@ const Customers = () => {
                 <th>#</th>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Phone</th>
+                <th>Mobile</th>
+                <th>City</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((c, i) => (
-                <tr key={c.id}>
-                  <td>{i + 1}</td>
-                  <td>{c.name || '—'}</td>
-                  <td>{c.email || '—'}</td>
-                  <td>{c.phone || '—'}</td>
-                  <td>
-                    <span className={c.active !== false ? 'badge-active' : 'badge-inactive'}>
-                      {c.active !== false ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/customers/edit/${c.id}`)}>
-                      Edit
-                    </button>
-                    <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(c)}>
-                      {c.active !== false ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(c.id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((c, i) => {
+                const addr = c.customerAddressDTOList?.[0];
+                return (
+                  <tr key={c.customerId}>
+                    <td>{i + 1}</td>
+                    <td>{[c.firstName, c.lastName].filter(Boolean).join(' ') || '—'}</td>
+                    <td>{c.email || '—'}</td>
+                    <td>{addr?.mobile || '—'}</td>
+                    <td>{addr?.cityName || '—'}</td>
+                    <td>
+                      <span className={c.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive'}>
+                        {c.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn-sm-vc btn-sm-toggle" onClick={() => navigate(`/customers/edit/${c.customerId}`)}>
+                        Edit
+                      </button>
+                      <button className="btn-sm-vc btn-sm-toggle" onClick={() => handleToggle(c)}>
+                        {c.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button className="btn-sm-vc btn-sm-danger" onClick={() => handleDelete(c.customerId)}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

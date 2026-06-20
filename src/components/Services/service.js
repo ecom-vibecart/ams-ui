@@ -9,11 +9,13 @@ axios.interceptors.request.use(config => {
 });
 
 export const API = {
-  validateAccount: `${VIBECART_URI}/api/v1/vibe-cart/accounts/validate`,
-  users:           `${VIBECART_URI}/api/v1/vibe-cart/accounts/users`,
-  user:            (id) => `${VIBECART_URI}/api/v1/vibe-cart/accounts/user/${id}`,
-  createUser:      `${VIBECART_URI}/api/v1/vibe-cart/accounts/user`,
-  customers:       `${VIBECART_URI}/api/v1/vibe-cart/accounts/customers`,
-  customer:        (id) => `${VIBECART_URI}/api/v1/vibe-cart/accounts/customer/${id}`,
-  createCustomer:  `${VIBECART_URI}/api/v1/vibe-cart/accounts/customer`,
+  validateAccount:    `${VIBECART_URI}/api/v1/vibe-cart/accounts/validate`,
+  users:              `${VIBECART_URI}/api/v1/vibe-cart/accounts/users`,
+  user:               (id) => `${VIBECART_URI}/api/v1/vibe-cart/accounts/user/${id}`,
+  createUser:         `${VIBECART_URI}/api/v1/vibe-cart/accounts/user`,
+  patchUserStatus:    (id, status) => `${VIBECART_URI}/api/v1/vibe-cart/accounts/user/${id}?status=${status}`,
+  customers:          `${VIBECART_URI}/api/v1/vibe-cart/accounts/customers`,
+  customer:           (id) => `${VIBECART_URI}/api/v1/vibe-cart/accounts/customer/${id}`,
+  createCustomer:     `${VIBECART_URI}/api/v1/vibe-cart/accounts/customer`,
+  patchCustomerStatus:(id, status) => `${VIBECART_URI}/api/v1/vibe-cart/accounts/customer/${id}?status=${status}`,
 };

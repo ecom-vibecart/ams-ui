@@ -35,8 +35,8 @@ const Dashboard = () => {
 
   if (error) return <div className="alert alert-danger">{error}</div>;
 
-  const activeUsers = users.filter(u => u.active !== false).length;
-  const activeCustomers = customers.filter(c => c.active !== false).length;
+  const activeUsers = users.filter(u => u.status === 'ACTIVE').length;
+  const activeCustomers = customers.filter(c => c.status === 'ACTIVE').length;
 
   return (
     <div>
