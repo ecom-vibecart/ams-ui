@@ -11,6 +11,15 @@ const Header = ({ onLogout, isLoggedIn }) => {
     if (email) setUsername(email);
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const close = (e) => {
+      if (!e.target.closest('.user-info')) setDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [dropdownOpen]);
+
   return (
     <header className="header-container">
       <div className="header-title">
@@ -23,8 +32,7 @@ const Header = ({ onLogout, isLoggedIn }) => {
         {isLoggedIn && (
           <div
             className="user-info"
-            onMouseEnter={() => setDropdownOpen(true)}
-            onMouseLeave={() => setDropdownOpen(false)}
+            onClick={() => setDropdownOpen(prev => !prev)}
           >
             <FaRegUserCircle className="user-icon" size={26} color="#dd1e25" />
             <div className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}>
