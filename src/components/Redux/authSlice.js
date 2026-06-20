@@ -15,4 +15,5 @@ const authSlice = createSlice({
 });
 
 export const { login, logout } = authSlice.actions;
+export const isAdmin = () => sessionStorage.getItem('role') === 'ADMIN';
 export default authSlice.reducer;
