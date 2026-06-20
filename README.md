@@ -1,70 +1,87 @@
-# Getting Started with Create React App
+# ams-ui
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Admin dashboard for Account Management — manage users, customers, roles, and account activity.
 
-## Available Scripts
+**Port:** `3000` (default — set `PORT` in `.env` to avoid conflict with app-ui)  
+**React:** 19.2.7 | **React Router:** 7.18.0 | **Framework:** Create React App
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- User and customer list with search and filter
+- Create, edit, and deactivate accounts
+- Role assignment (ROLE_CUSTOMER, ROLE_ADMIN)
+- Customer address management
+- Alert dialogs for destructive actions (SweetAlert2)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Package | Version | Purpose |
+|---|---|---|
+| `react` | 19.2.7 | UI framework |
+| `react-router-dom` | 7.18.0 | Client-side routing (React Router v7) |
+| `@reduxjs/toolkit` | 2.12.0 | State management |
+| `react-redux` | 9.3.0 | React–Redux bindings |
+| `axios` | 1.18.0 | HTTP client |
+| `bootstrap` | 5.3.8 | CSS framework |
+| `react-icons` | 5.6.0 | Icon set |
+| `sweetalert2` | 11.26.25 | Alert/confirmation dialogs |
 
-### `npm run build`
+> **Note:** This app uses React Router **v7** (vs v6 in the other UIs). The routing API is largely compatible but has some changes to loader/action patterns.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Getting Started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+# Install dependencies
+npm install
 
-### `npm run eject`
+# Start development server
+npm start
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Production build
+npm run build
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Environment Variables
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Create a `.env` file in this directory:
 
-## Learn More
+```
+PORT=3003
+REACT_APP_API_URL=http://localhost:5001
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Variable | Description |
+|---|---|
+| `REACT_APP_API_URL` | API Gateway base URL |
+| `PORT` | Dev server port (set to 3003 to avoid conflict with app-ui on 3000) |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## API Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```
+Base URL: REACT_APP_API_URL
+Accounts: /api/v1/vibe-cart/accounts/**
+```
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Project Structure
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+src/
+├── App.js
+├── index.js
+└── components/
+    ├── Users/      # Admin user management
+    ├── Customers/  # Customer account management
+    └── common/     # Shared layout, nav, alerts
+```
